@@ -1,9 +1,9 @@
 streamlit
 pandas
 numpy
+plotly
 scikit-learn
-matplotlib
+gensim
 wordcloud
+matplotlib
 konlpy
-JPype1
-seaborn
