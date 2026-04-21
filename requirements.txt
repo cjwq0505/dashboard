@@ -3,7 +3,7 @@ pandas
 numpy
 plotly
 scikit-learn
-gensim
 wordcloud
 matplotlib
 konlpy
+JPype1
