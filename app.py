@@ -140,6 +140,30 @@ def find_specific_dept(text):
 def load_data():
     df = pd.read_csv('에브리타임_전처리완료.csv')
     df['추천수'] = pd.to_numeric(df['추천수'], errors='coerce').fillna(0).astype(int)
+    # 복합어 재결합 (형태소 분석에서 쪼개진 것 보정)
+    merge = {
+        '학술 정보원':'학술정보원', '공공정책 대학':'공공정책대학',
+        '공공 정책':'공공정책대학', '석원 경상관':'석원경상관',
+        '전동 킥보드':'전동킥보드', '총학 생회':'총학생회',
+        '수강 신청':'수강신청', '학생 식당':'학생식당',
+        '학생 회관':'학생회관', '글로벌 잉글리시':'글로벌잉글리시',
+        '근로 장학생':'근로장학생',
+    }
+    for k, v in merge.items():
+        df['형태소'] = df['형태소'].str.replace(k, v, regex=False)
+    # '학술' 단독 → 학술정보원, '보드' 단독 → 전동킥보드
+    df['형태소'] = df['형태소'].str.replace(r'(?<!\S)학술(?!정보원)(?!\S)', '학술정보원', regex=True)
+    df['형태소'] = df['형태소'].str.replace(r'(?<!\S)보드(?!\S)', '전동킥보드', regex=True)
+    # 추가 불용어 제거 (욕설/감탄사/의미 약한 단어)
+    extra_stop = ['시발','씨발','존나','미치다','제발','지금','진짜','레알',
+                  '병신','새끼','지랄','개','좆','씹','대학',
+                  '좋다','싫다','크다','작다','많다','적다','이렇다','그렇다',
+                  '어디','언제','얼마나','정도','대체','아예','맨날','계속']
+    def remove_stopwords(text):
+        if pd.isna(text): return text
+        words = str(text).split()
+        return ' '.join([w for w in words if w not in extra_stop])
+    df['형태소'] = df['형태소'].apply(remove_stopwords)
     return df
 
 @st.cache_data
